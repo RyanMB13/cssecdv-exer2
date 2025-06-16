@@ -92,9 +92,9 @@ public class Login extends javax.swing.JPanel {
                 .addContainerGap(126, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-    private void loginBtnActionPerformed(ActionEvent evt) {//GEN-FIRST:event_loginBtnActionPerformed
+    private void loginBtnActionPerformed(ActionEvent evt) {
         String username = usernameFld.getText().trim();
-        String password = passwordFld.getText();
+        String password = new String(passwordFld.getPassword());
 
         if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter both username and password.");
@@ -113,13 +113,19 @@ public class Login extends javax.swing.JPanel {
                 int role = rs.getInt("Role");
 
                 if (PasswordUtils.verifyPassword(password, storedHash, storedSalt)) {
+                    // ✅ Set user role globally for RBAC
+                    frame.currentUserRole = role;
+
+                    // ✅ Go to main container
                     frame.mainNav();
+
+                    // ✅ Navigate to appropriate home panel
                     switch (role) {
-                        case 5 -> frame.adminBtnActionPerformed(null);
-                        case 4 -> frame.managerBtnActionPerformed(null);
-                        case 3 -> frame.staffBtnActionPerformed(null);
-                        case 2 -> frame.clientBtnActionPerformed(null);
-                        default -> JOptionPane.showMessageDialog(this, "Account is disabled.");
+                        case 5 -> frame.showHome("admin");
+                        case 4 -> frame.showHome("manager");
+                        case 3 -> frame.showHome("staff");
+                        case 2 -> frame.showHome("client");
+                        default -> JOptionPane.showMessageDialog(this, "Account is disabled or role is undefined.");
                     }
                 } else {
                     JOptionPane.showMessageDialog(this, "Invalid password.");
@@ -131,7 +137,7 @@ public class Login extends javax.swing.JPanel {
             rs.close();
             stmt.close();
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Login failed: " + e.getMessage());
         }

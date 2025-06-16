@@ -4,7 +4,7 @@ import Controller.Main;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
 public class Frame extends javax.swing.JFrame {
 
@@ -180,23 +180,19 @@ public class Frame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     public void adminBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_adminBtnActionPerformed
-        adminHomePnl.showPnl("home");
-        contentView.show(Content, "adminHomePnl");
+        showHome("admin");
     }//GEN-LAST:event_adminBtnActionPerformed
 
     public void managerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_managerBtnActionPerformed
-        managerHomePnl.showPnl("home");
-        contentView.show(Content, "managerHomePnl");
+        showHome("manager");
     }//GEN-LAST:event_managerBtnActionPerformed
 
     public void staffBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_staffBtnActionPerformed
-        staffHomePnl.showPnl("home");
-        contentView.show(Content, "staffHomePnl");
+        showHome("staff");
     }//GEN-LAST:event_staffBtnActionPerformed
 
     public void clientBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clientBtnActionPerformed
-        clientHomePnl.showPnl("home");
-        contentView.show(Content, "clientHomePnl");
+        showHome("client");
     }//GEN-LAST:event_clientBtnActionPerformed
 
     public void logoutBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutBtnActionPerformed
@@ -207,6 +203,7 @@ public class Frame extends javax.swing.JFrame {
     public Controller.SQLite sqlite;
     public Login loginPnl = new Login();
     public Register registerPnl = new Register();
+    public int currentUserRole = -1; // -1 = not logged in
     
     private AdminHome adminHomePnl = new AdminHome();
     private ManagerHome managerHomePnl = new ManagerHome();
@@ -260,6 +257,40 @@ public class Frame extends javax.swing.JFrame {
 
     public void registerAction(String username, String hashedPassword, String salt) {
         sqlite.addUser(username, hashedPassword, salt, 2); // 2 = client
+    }
+
+    public void showHome(String role) {
+        switch (role) {
+            case "admin" -> {
+                if (currentUserRole == 5) {
+                    adminHomePnl.showPnl("home");
+                    contentView.show(Content, "adminHomePnl");
+                } else denyAccess();
+            }
+            case "manager" -> {
+                if (currentUserRole == 4) {
+                    managerHomePnl.showPnl("home");
+                    contentView.show(Content, "managerHomePnl");
+                } else denyAccess();
+            }
+            case "staff" -> {
+                if (currentUserRole == 3) {
+                    staffHomePnl.showPnl("home");
+                    contentView.show(Content, "staffHomePnl");
+                } else denyAccess();
+            }
+            case "client" -> {
+                if (currentUserRole == 2) {
+                    clientHomePnl.showPnl("home");
+                    contentView.show(Content, "clientHomePnl");
+                } else denyAccess();
+            }
+            default -> denyAccess();
+        }
+    }
+
+    private void denyAccess() {
+        JOptionPane.showMessageDialog(this, "Access denied: You are not authorized to view this page.");
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
