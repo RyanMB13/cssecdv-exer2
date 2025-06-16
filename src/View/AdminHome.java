@@ -27,29 +27,34 @@ public class AdminHome extends javax.swing.JPanel {
     public MgmtUser mgmtUser;
     
     private CardLayout contentView = new CardLayout();
-    
+
     public AdminHome() {
         initComponents();
     }
-    
-    public void init(SQLite sqlite){
+
+    public void init(SQLite sqlite, int currentUserRole){
+
         mgmtHistory = new MgmtHistory(sqlite);
         mgmtLogs = new MgmtLogs(sqlite);
         mgmtProduct = new MgmtProduct(sqlite);
         mgmtUser = new MgmtUser(sqlite);
-        
+
         Content.setLayout(contentView);
         Content.add(new Home("WELCOME ADMIN!", new java.awt.Color(51, 153, 255)), "home");
         Content.add(this.mgmtUser, "mgmtUser");
         Content.add(this.mgmtHistory, "mgmtHistory");
         Content.add(this.mgmtProduct, "mgmtProduct");
         Content.add(this.mgmtLogs, "mgmtLogs");
-        
-//        UNCOMMENT TO DISABLE BUTTONS
-//        historyBtn.setVisible(false);
-//        usersBtn.setVisible(false);
-//        productsBtn.setVisible(false);
-//        logsBtn.setVisible(false);
+
+        // Role-based visibility logic
+        if (currentUserRole < 5) {
+            usersBtn.setVisible(false);
+        }
+        if (currentUserRole < 3){
+            historyBtn.setVisible(false);
+            productsBtn.setVisible(false);
+            logsBtn.setVisible(false);
+        }
     }
     
     public void showPnl(String panelName){

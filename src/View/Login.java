@@ -113,13 +113,15 @@ public class Login extends javax.swing.JPanel {
                 int role = rs.getInt("Role");
 
                 if (PasswordUtils.verifyPassword(password, storedHash, storedSalt)) {
-                    // ✅ Set user role globally for RBAC
                     frame.currentUserRole = role;
 
-                    // ✅ Go to main container
+                    frame.adminHomePnl.init(frame.sqlite, role);
+                    frame.managerHomePnl.init(frame.sqlite, role);
+                    frame.staffHomePnl.init(frame.sqlite, role);
+                    frame.clientHomePnl.init(frame.sqlite, role);
+
                     frame.mainNav();
 
-                    // ✅ Navigate to appropriate home panel
                     switch (role) {
                         case 5 -> frame.showHome("admin");
                         case 4 -> frame.showHome("manager");

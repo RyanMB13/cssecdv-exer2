@@ -196,6 +196,20 @@ public class Frame extends javax.swing.JFrame {
     }//GEN-LAST:event_clientBtnActionPerformed
 
     public void logoutBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutBtnActionPerformed
+        currentUserRole = -1;
+
+        adminHomePnl = new AdminHome();
+        managerHomePnl = new ManagerHome();
+        staffHomePnl = new StaffHome();
+        clientHomePnl = new ClientHome();
+
+        Content.removeAll();
+        Content.setLayout(contentView);
+        Content.add(adminHomePnl, "adminHomePnl");
+        Content.add(managerHomePnl, "managerHomePnl");
+        Content.add(staffHomePnl, "staffHomePnl");
+        Content.add(clientHomePnl, "clientHomePnl");
+
         frameView.show(Container, "loginPnl");
     }//GEN-LAST:event_logoutBtnActionPerformed
 
@@ -205,10 +219,10 @@ public class Frame extends javax.swing.JFrame {
     public Register registerPnl = new Register();
     public int currentUserRole = -1; // -1 = not logged in
     
-    private AdminHome adminHomePnl = new AdminHome();
-    private ManagerHome managerHomePnl = new ManagerHome();
-    private StaffHome staffHomePnl = new StaffHome();
-    private ClientHome clientHomePnl = new ClientHome();
+    AdminHome adminHomePnl = new AdminHome();
+    ManagerHome managerHomePnl = new ManagerHome();
+    StaffHome staffHomePnl = new StaffHome();
+    ClientHome clientHomePnl = new ClientHome();
     
     private CardLayout contentView = new CardLayout();
     private CardLayout frameView = new CardLayout();
@@ -222,11 +236,6 @@ public class Frame extends javax.swing.JFrame {
         this.sqlite = controller.sqlite;
         loginPnl.frame = this;
         registerPnl.frame = this;
-        
-        adminHomePnl.init(main.sqlite);
-        clientHomePnl.init(main.sqlite);
-        managerHomePnl.init(main.sqlite);
-        staffHomePnl.init(main.sqlite);
         
         Container.setLayout(frameView);
         Container.add(loginPnl, "loginPnl");
@@ -288,6 +297,8 @@ public class Frame extends javax.swing.JFrame {
             default -> denyAccess();
         }
     }
+
+
 
     private void denyAccess() {
         JOptionPane.showMessageDialog(this, "Access denied: You are not authorized to view this page.");

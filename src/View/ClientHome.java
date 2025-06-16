@@ -32,7 +32,7 @@ public class ClientHome extends javax.swing.JPanel {
         initComponents();
     }
     
-    public void init(SQLite sqlite){
+    public void init(SQLite sqlite, int currentUserRole){
         mgmtHistory = new MgmtHistory(sqlite);
         mgmtLogs = new MgmtLogs(sqlite);
         mgmtProduct = new MgmtProduct(sqlite);
@@ -44,12 +44,17 @@ public class ClientHome extends javax.swing.JPanel {
         Content.add(mgmtHistory, "mgmtHistory");
         Content.add(mgmtProduct, "mgmtProduct");
         Content.add(mgmtLogs, "mgmtLogs");
-        
-//        UNCOMMENT TO DISABLE BUTTONS
-//        historyBtn.setVisible(false);
-//        usersBtn.setVisible(false);
-//        productsBtn.setVisible(false);
-//        logsBtn.setVisible(false);
+
+        // Role-based visibility logic
+        if (currentUserRole < 5) {
+            usersBtn.setVisible(false);
+        }
+
+        if (currentUserRole < 3){
+            historyBtn.setVisible(false);
+            productsBtn.setVisible(false);
+            logsBtn.setVisible(false);
+        }
     }
     
     public void showPnl(String panelName){
