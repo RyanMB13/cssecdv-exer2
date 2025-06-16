@@ -96,10 +96,44 @@ public class Register extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void registerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerBtnActionPerformed
-        frame.registerAction(usernameFld.getText(), passwordFld.getText(), confpassFld.getText());
+    private void registerBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        String username = usernameFld.getText().trim();
+        String password = passwordFld.getText();
+        String confirmPassword = confpassFld.getText();
+
+        // Input validation
+        if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "All fields are required.");
+            return;
+        }
+
+        // Password match check
+        if (!password.equals(confirmPassword)) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Passwords do not match.");
+            return;
+        }
+
+        // Password strength check
+        if (password.length() < 8 ||
+                !password.matches(".*[A-Z].*") ||
+                !password.matches(".*[a-z].*") ||
+                !password.matches(".*\\d.*") ||
+                !password.matches(".*[!@#$%^&*()].*")) {
+
+            javax.swing.JOptionPane.showMessageDialog(this, "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+            return;
+        }
+
+        // Secure hash with salt
+        String salt = Utils.PasswordUtils.getSalt();
+        String hashedPassword = Utils.PasswordUtils.hashPassword(password, salt);
+
+        // Save using Frame's method (you will need to update registerAction to support salt)
+        frame.registerAction(username, hashedPassword, salt);
+
+        javax.swing.JOptionPane.showMessageDialog(this, "Registration successful!");
         frame.loginNav();
-    }//GEN-LAST:event_registerBtnActionPerformed
+    }
 
     private void backBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtnActionPerformed
         frame.loginNav();

@@ -4,11 +4,8 @@ import Model.History;
 import Model.Logs;
 import Model.Product;
 import Model.User;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+
+import java.sql.*;
 import java.util.ArrayList;
 
 public class SQLite {
@@ -79,18 +76,19 @@ public class SQLite {
             System.out.print(ex);
         }
     }
-     
+
     public void createUserTable() {
         String sql = "CREATE TABLE IF NOT EXISTS users (\n"
-            + " id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
-            + " username TEXT NOT NULL UNIQUE,\n"
-            + " password TEXT NOT NULL,\n"
-            + " role INTEGER DEFAULT 2,\n"
-            + " locked INTEGER DEFAULT 0\n"
-            + ");";
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
+                + " username TEXT NOT NULL UNIQUE,\n"
+                + " password TEXT NOT NULL,\n"
+                + " salt TEXT NOT NULL,\n"
+                + " role INTEGER DEFAULT 2,\n"
+                + " locked INTEGER DEFAULT 0\n"
+                + ");";
 
         try (Connection conn = DriverManager.getConnection(driverURL);
-            Statement stmt = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             System.out.println("Table users in database.db created.");
         } catch (Exception ex) {
@@ -178,22 +176,22 @@ public class SQLite {
             System.out.print(ex);
         }
     }
-    
-    public void addUser(String username, String password) {
-        String sql = "INSERT INTO users(username,password) VALUES('" + username + "','" + password + "')";
-        
+
+    public void addUser(String username, String hashedPassword, String salt, int role) {
+        String sql = "INSERT INTO users (Username, Password, Salt, Role) VALUES (?, ?, ?, ?)";
+
         try (Connection conn = DriverManager.getConnection(driverURL);
-            Statement stmt = conn.createStatement()){
-            stmt.execute(sql);
-            
-//      PREPARED STATEMENT EXAMPLE
-//      String sql = "INSERT INTO users(username,password) VALUES(?,?)";
-//      PreparedStatement pstmt = conn.prepareStatement(sql)) {
-//      pstmt.setString(1, username);
-//      pstmt.setString(2, password);
-//      pstmt.executeUpdate();
-        } catch (Exception ex) {
-            System.out.print(ex);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            pstmt.setString(2, hashedPassword);
+            pstmt.setString(3, salt);
+            pstmt.setInt(4, role);
+            pstmt.executeUpdate();
+
+            System.out.println("User " + username + " successfully registered.");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
     

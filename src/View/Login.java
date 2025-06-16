@@ -1,6 +1,16 @@
 
 package View;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import Utils.PasswordUtils;
+
 public class Login extends javax.swing.JPanel {
 
     public Frame frame;
@@ -15,7 +25,7 @@ public class Login extends javax.swing.JPanel {
 
         jLabel1 = new javax.swing.JLabel();
         usernameFld = new javax.swing.JTextField();
-        passwordFld = new javax.swing.JTextField();
+        passwordFld = new javax.swing.JPasswordField();
         registerBtn = new javax.swing.JButton();
         loginBtn = new javax.swing.JButton();
 
@@ -82,19 +92,59 @@ public class Login extends javax.swing.JPanel {
                 .addContainerGap(126, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-    private void loginBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBtnActionPerformed
-        frame.mainNav();
+    private void loginBtnActionPerformed(ActionEvent evt) {//GEN-FIRST:event_loginBtnActionPerformed
+        String username = usernameFld.getText().trim();
+        String password = passwordFld.getText();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter both username and password.");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:database.db")) {
+            String sql = "SELECT Password, Salt, Role FROM users WHERE Username = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String storedHash = rs.getString("Password");
+                String storedSalt = rs.getString("Salt");
+                int role = rs.getInt("Role");
+
+                if (PasswordUtils.verifyPassword(password, storedHash, storedSalt)) {
+                    frame.mainNav();
+                    switch (role) {
+                        case 5 -> frame.adminBtnActionPerformed(null);
+                        case 4 -> frame.managerBtnActionPerformed(null);
+                        case 3 -> frame.staffBtnActionPerformed(null);
+                        case 2 -> frame.clientBtnActionPerformed(null);
+                        default -> JOptionPane.showMessageDialog(this, "Account is disabled.");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Invalid password.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "User not found.");
+            }
+
+            rs.close();
+            stmt.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Login failed: " + e.getMessage());
+        }
     }//GEN-LAST:event_loginBtnActionPerformed
 
     private void registerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerBtnActionPerformed
         frame.registerNav();
     }//GEN-LAST:event_registerBtnActionPerformed
 
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JButton loginBtn;
-    private javax.swing.JTextField passwordFld;
+    private javax.swing.JPasswordField passwordFld;
     private javax.swing.JButton registerBtn;
     private javax.swing.JTextField usernameFld;
     // End of variables declaration//GEN-END:variables
